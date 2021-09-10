@@ -1,0 +1,9 @@
+yt_dlp==2021.9.2
+pytz==2021.1
+discord.py==1.7.3
+numpy==1.20.1
+requests==2.25.1
+matplotlib==3.3.4
+sympy==1.8
+beautifulsoup4==4.10.0
+discord==1.7.3
