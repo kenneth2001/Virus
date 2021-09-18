@@ -37,6 +37,10 @@
 7. `#log` Display the previous 30 in/out user
 8. `#debug` Check parameters (for debugging)
 
+**New features**
+1. `#when` Return the start time of the bot
+2. `#dm [userid] [message]` Send message to any user privately
+
 ## Dependencies
 - yt_dlp==2021.9.2
 - pytz==2021.1

@@ -134,7 +134,7 @@ async def log(ctx):
         return
     
     embed = discord.Embed(color = discord.Colour.red())
-    embed.set_author(name='Virus Log (Preview 30 In&Out)')
+    embed.set_author(name='Virus Log (Recent 30 records)')
     for field in channel_var[ctx.guild.id]['log'][-30:]:
         embed.add_field(name=field[0], value=field[1], inline=False)
     await ctx.send(embed=embed)   
@@ -143,7 +143,6 @@ async def play_music(ctx):
     while not client.is_closed():
         global channel_var
         if not len(channel_var[ctx.guild.id]['queue']) == 0 and ctx is not None:
-            #print(ctx)
             server = ctx.message.guild
             voice_channel = server.voice_client
             if (voice_channel and voice_channel.is_connected() and not voice_channel.is_playing() and channel_var[ctx.guild.id]['playing']) == True:
@@ -159,7 +158,7 @@ async def play_music(ctx):
                     await ctx.send(f'**Download error:** {title}')
                     
                 del(channel_var[ctx.guild.id]['queue'][0])
-        await asyncio.sleep(5)
+        await asyncio.sleep(1)
                   
 @client.command(name='play')
 async def play(ctx, *url):
@@ -182,7 +181,7 @@ async def play(ctx, *url):
         return LINK, URL, TITLE
     
     if not ctx.message.author.voice: # handle if message author is not inside any voice channel
-        await ctx.send("You are not connected to a voice channel")
+        await ctx.send(**"You are not connected to a voice channel**")
         return
     elif ctx.message.guild.voice_client: # if bot is inside any voice channel
         if ctx.message.guild.voice_client.channel != ctx.message.author.voice.channel: # if bot is not inside the author's channel
@@ -341,6 +340,9 @@ async def help(ctx):
                                                                8. `#clear` Delete previous 30 messages sent by this bot / started with '#'
                                                                9. `#debug` Check parameters (for debugging)""", inline=False)
     
+    embed.add_field(name=':new: __New Features (Experimental)__', value="""1. `#when` Return the start time of the bot
+                                                                        2. `#dm [userid] [message]` Send message to any user privately""" )
+    
     embed.add_field(name=':frame_with_picture: __GIF__', value="Automatically return GIF if the message matches the following keywords\n`" + '` `'.join(gif.keys()) +'`', inline=False)
     embed.set_footer(text="Last updated on 9 September 2021")
     await ctx.send(embed=embed)
@@ -357,7 +359,7 @@ async def stick(ctx):
 
 @client.command(name='credit')
 async def credit(ctx):
-    await ctx.send('Created By kenneth\nLast Update On 9/9/2021\nhttps://github.com/kenneth2001')
+    await ctx.send('Created By kenneth\nLast Update On 18/9/2021\nhttps://github.com/kenneth2001')
 
 @client.command(name='clear')
 async def clear(ctx):
@@ -464,7 +466,8 @@ async def save(ctx, id=None):
             await ctx.send("Good Job" + tag)
         else:
             await ctx.send("on9" + tag)
-    
+
+# experimental   
 @client.command(name='plot')
 async def plot(ctx):
     def check(m):
@@ -503,6 +506,23 @@ async def plot(ctx):
     await ctx.send(file=discord.File('plot.png'))
     os.remove('plot.png')
     plt.clf()
-    
+   
+# experimental
+@client.command(name='when')
+async def when(ctx):
+    await ctx.send(start_time.strftime("**Bot started from %Y-%m-%d %I-%M %p**"))
+
+# experimental
+@client.command(name='dm')
+async def dm(ctx, userid, *message):
+    try:
+        userid = int(userid)
+        user = await client.fetch_user(userid)
+        await user.send(' '.join(message))
+        await ctx.send("**Message sent successfully**")
+    except:
+        await ctx.send("**Message is not sent**")
+ 
 #keep_alive() # For setting up bot on replit.com
+start_time = datetime.now(tz)
 client.run(token)
