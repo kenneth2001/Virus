@@ -392,25 +392,16 @@ async def joke(ctx, userid=None, n=10, sleep_time=0.5):
         return
     
     while(n > 0):
-        print(n)
         if channel_var[ctx.guild.id]['bully'][userid] == False:
             return
         
         try:
             if user.voice is not None:
                 await user.move_to(np.random.choice(ctx.guild.voice_channels))
-                n -= 0.5
+                n -= 1
         except:
             pass
         
-        await asyncio.sleep(sleep_time)
-        
-        try:
-            if user.voice is not None:
-                await user.move_to(np.random.choice(ctx.guild.voice_channels))
-                n -= 0.5
-        except:
-            pass
         await asyncio.sleep(sleep_time)
                                            
 def generate_question():
