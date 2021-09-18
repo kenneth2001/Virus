@@ -355,7 +355,7 @@ async def help(ctx):
                                                                         2. `#dm [userid] [message]` Send message to any user privately""" )
     
     embed.add_field(name=':frame_with_picture: __GIF__', value="Automatically return GIF if the message matches the following keywords\n`" + '` `'.join(gif.keys()) +'`', inline=False)
-    embed.set_footer(text="Last updated on 9 September 2021")
+    embed.set_footer(text="Last updated on 18 September 2021")
     await ctx.send(embed=embed)
 
 @client.command(name='ping')
