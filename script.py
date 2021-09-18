@@ -15,6 +15,7 @@ from yt_dlp.utils import DownloadError, ExtractorError
 from util.log import pretty_output, pretty_print
 from util.preprocessing import load_config, load_gif, load_user
 #from util.keep_alive import keep_alive # For setting up bot on replit.com
+import secrets
 
 try:
     print('LOADING config.txt')
@@ -218,9 +219,19 @@ async def play(ctx, *url):
 
 @client.command(name='debug')
 async def debug(ctx):
-    pretty_print(channel_var)
-    pretty_output(channel_var, filename='tmp.json')
-    await ctx.send(file=discord.File('tmp.json'))
+    def check(m):
+        return m.author == ctx.message.author
+    
+    func_token = secrets.token_hex(10)
+    print("Token:", func_token)
+    await ctx.send('**Please type in the token displayed in console**')
+    msg = await client.wait_for("message", check=check)
+    if msg.content == func_token:
+        pretty_print(channel_var)
+        pretty_output(channel_var, filename='tmp.json')
+        await ctx.send(file=discord.File('tmp.json'))
+    else:
+        await ctx.send("**Only admin can use this command**")
 
 @client.command(name='queue')
 async def queue_(ctx):
@@ -295,7 +306,7 @@ async def on_message(message):
     if author == client.user:
         return
     
-    print('Debugging:', author, msg)
+    #print('Debugging:', author, msg)
     
     today = date.today()
     
@@ -465,7 +476,7 @@ async def save(ctx, id=None):
             channel_var[ctx.guild.id]['bully'][userid] = False
             await ctx.send("Good Job" + tag)
         else:
-            await ctx.send("on9" + tag)
+            await ctx.send("Be careful" + tag)
 
 # experimental   
 @client.command(name='plot')
