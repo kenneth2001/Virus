@@ -135,8 +135,8 @@ async def log(ctx):
         return
     
     embed = discord.Embed(color = discord.Colour.red())
-    embed.set_author(name='Virus Log (Recent 30 records)')
-    for field in channel_var[ctx.guild.id]['log'][-30:]:
+    embed.set_author(name='Log (Recent 20 records)')
+    for field in channel_var[ctx.guild.id]['log'][-20:]:
         embed.add_field(name=field[0], value=field[1], inline=False)
     await ctx.send(embed=embed)   
 
@@ -347,7 +347,7 @@ async def help(ctx):
                                                                4. `#credit` Display information of the bot developer
                                                                5. `#hello` Return 'hello world'
                                                                6. `#ping` Return latency
-                                                               7. `#log` Display the previous 30 in/out user
+                                                               7. `#log` Display the previous 20 in/out user
                                                                8. `#clear` Delete previous 30 messages sent by this bot / started with '#'
                                                                9. `#debug` Check parameters (for debugging)""", inline=False)
     

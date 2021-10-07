@@ -34,7 +34,7 @@
 4. `#credit` Display information of the bot developer
 5. `#hello` Return 'hello world'
 6. `#ping` Return latency
-7. `#log` Display the previous 30 in/out user
+7. `#log` Display the previous 20 in/out user
 8. `#debug` Check parameters (for debugging)
 
 **New features**
