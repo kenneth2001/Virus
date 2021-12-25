@@ -43,4 +43,5 @@ def load_config(filename: str) -> str:
     with open(filename, 'r') as f:
         token = str.strip(f.readline().replace('token=', ''))
         timezone = str.strip(f.readline().replace('timezone=', ''))
-    return token, timezone
+        mode = str.strip(f.readline().replace('mode=', ''))
+    return token, timezone, mode

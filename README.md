@@ -63,6 +63,11 @@
    1. To include personalised GIFs, you may specify the keywords and link in `gif.json`
    2. To include personalised Welcome message for specified user, you may specify the userid and message in `user.json`
 
+- Setting up bot in https://replit.com/
+  1. Upload all the files
+  2. Change mode from 0 to 1 inside `config.txt`
+  3. To keep bot alive, you may use https://uptimerobot.com/
+
 ## Demo
 
 - Add Virus to your channel!!! [CLICK HERE!!!](https://discord.com/oauth2/authorize?client_id=885452084269424660&permissions=8&scope=bot)

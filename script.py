@@ -7,25 +7,37 @@ import numpy as np
 from urllib.error import HTTPError
 import yt_dlp as youtube_dl
 from discord.ext import commands
-import sympy
-import matplotlib.pyplot as plt
 import os
 from pytz import timezone
 from yt_dlp.utils import DownloadError, ExtractorError
 from util.log import pretty_output, pretty_print
 from util.preprocessing import load_config, load_gif, load_user
-#from util.keep_alive import keep_alive # For setting up bot on replit.com
 import secrets
 
 try:
     print('LOADING config.txt')
-    TOKEN, TIMEZONE = load_config('config/config.txt')
+    TOKEN, TIMEZONE, MODE = load_config('config/config.txt')
     print('LOADED config.txt\n')
 except:
     print('ERROR LOADING config.txt\n')
 
 tz = timezone(TIMEZONE)
 token = TOKEN #os.environ['token']
+
+# 0: local, 1: repl.it
+# For setting up bot on replit.com
+if MODE == 1:
+    from util.keep_alive import keep_alive
+    os.environ['MPLCONFIGDIR'] = '/tmp/'  #"/home/runner/Virus-demo/tmp"
+    import matplotlib
+    matplotlib.use('agg')
+    import matplotlib.pyplot as plt
+elif MODE == 0:
+    import matplotlib.pyplot as plt
+    import sympy
+else:
+    print('UNDEFINED MODE')
+    exit()
 
 try:
     print('LOADING gif.json')
@@ -182,7 +194,7 @@ async def play(ctx, *url):
         return LINK, URL, TITLE
     
     if not ctx.message.author.voice: # handle if message author is not inside any voice channel
-        await ctx.send(**"You are not connected to a voice channel**")
+        await ctx.send("**You are not connected to a voice channel**")
         return
     elif ctx.message.guild.voice_client: # if bot is inside any voice channel
         if ctx.message.guild.voice_client.channel != ctx.message.author.voice.channel: # if bot is not inside the author's channel
@@ -355,7 +367,7 @@ async def help(ctx):
                                                                         2. `#dm [userid] [message]` Send message to any user privately""" )
     
     embed.add_field(name=':frame_with_picture: __GIF__', value="Automatically return GIF if the message matches the following keywords\n`" + '` `'.join(gif.keys()) +'`', inline=False)
-    embed.set_footer(text="Last updated on 18 September 2021")
+    embed.set_footer(text="Last updated on 25 December 2021")
     await ctx.send(embed=embed)
 
 @client.command(name='ping')
@@ -468,7 +480,12 @@ async def save(ctx, id=None):
     else:
         question = generate_question()
         await ctx.send('Question:  `'+question+'`\nType your answer:')
-        answer = int(sympy.sympify(question))
+
+        if MODE == 0:
+            answer = int(sympy.sympify(question))
+        elif MODE == 1:
+            answer = int(eval(question))
+
         print('Answer:', answer)
         msg = await client.wait_for("message", check=check)
         tag = "<@" + str(ctx.message.author.id) + ">"
@@ -534,6 +551,8 @@ async def dm(ctx, userid, *message):
     except:
         await ctx.send("**Message is not sent**")
  
-#keep_alive() # For setting up bot on replit.com
+if MODE == 1:
+    keep_alive() # For setting up bot on replit.com
+
 start_time = datetime.now(tz)
 client.run(token)
