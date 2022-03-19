@@ -4,7 +4,7 @@
 ## Features
 1. Wong Tai Sin Fortune Sticks
 2. GPA prediction
-3. Music playing (including Queue!!!)
+3. Music playing (including Queue and Playist!!!)
 4. Move your friends to different voice channels randomly and repeatly
 5. Send GIF according to your message
 6. Simple graph plotting
@@ -18,6 +18,8 @@
 4. `#skip` Play next song
 5. `#queue` Display the queue
 6. `#stop` Kick the bot from voice channel
+7. `#playlist [url]` Play music from Youtube playlist
+8. `#shuffle` Shuffle songs in queue
     
 **Graph**
 1. `#plot` Create simple scatter/line plot
@@ -36,10 +38,8 @@
 6. `#ping` Return latency
 7. `#log` Display the previous 20 in/out user
 8. `#debug` Check parameters (for debugging)
-
-**New features**
-1. `#when` Return the start time of the bot
-2. `#dm [userid] [message]` Send message to any user privately
+9. `#when` Return the start time of the bot
+10. `#dm [userid] [message]` Send message to any user privately
 
 ## Dependencies
 - yt_dlp==2021.9.2
@@ -71,6 +71,3 @@
 ## Demo
 
 - Add Virus to your channel!!! [CLICK HERE!!!](https://discord.com/oauth2/authorize?client_id=885452084269424660&permissions=8&scope=bot)
-
-## To-dos
-1. Support playlist from youtube

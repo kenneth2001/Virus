@@ -13,6 +13,11 @@ from yt_dlp.utils import DownloadError, ExtractorError
 from util.log import pretty_output, pretty_print
 from util.preprocessing import load_config, load_gif, load_user
 import secrets
+import random
+
+# Exception for #playlist
+class NotPlaylist(Exception):
+    pass
 
 try:
     print('LOADING config.txt')
@@ -26,13 +31,13 @@ token = TOKEN #os.environ['token']
 
 # 0: local, 1: repl.it
 # For setting up bot on replit.com
-if MODE == 1:
+if MODE == '1':
     from util.keep_alive import keep_alive
     os.environ['MPLCONFIGDIR'] = '/tmp/'  #"/home/runner/Virus-demo/tmp"
     import matplotlib
     matplotlib.use('agg')
     import matplotlib.pyplot as plt
-elif MODE == 0:
+elif MODE == '0':
     import matplotlib.pyplot as plt
     import sympy
 else:
@@ -229,6 +234,69 @@ async def play(ctx, *url):
         channel_var[ctx.guild.id]['activated'] = True
         await play_music(ctx)
 
+@client.command(name='playlist')
+async def playlist(ctx, url):
+    await initialize(ctx.guild.id, ctx)
+    global channel_var
+
+    ytdl_playlist_options = ytdl_format_options.copy()
+    ytdl_playlist_options['noplaylist'] = False
+    ytdl_playlist_options['playliststart'] = 0
+    ytdl_playlist_options['playlistend'] = 20
+
+    def music(link):
+        with youtube_dl.YoutubeDL(ytdl_playlist_options) as ydl:
+            info = ydl.extract_info(link, download=False)       
+
+        if 'entries' not in info:
+            raise NotPlaylist
+
+        LINK = []
+        URL = []
+        TITLE = []
+
+        for entry in info['entries']:
+            LINK.append(entry['webpage_url'])
+            URL.append(entry['url'])
+            TITLE.append(entry['title'])
+        return LINK, URL, TITLE
+        
+    if not ctx.message.author.voice: # handle if message author is not inside any voice channel
+        await ctx.send("**You are not connected to a voice channel**")
+        return
+    elif ctx.message.guild.voice_client: # if bot is inside any voice channel
+        if ctx.message.guild.voice_client.channel != ctx.message.author.voice.channel: # if bot is not inside the author's channel
+            channel = ctx.message.author.voice.channel
+            user = await ctx.guild.fetch_member(client.user.id)
+            ctx.voice_client.pause()
+            await user.move_to(channel)
+            ctx.voice_client.resume()
+    else: # if bot is not inside any voice channel
+        channel = ctx.message.author.voice.channel
+        await channel.connect() # connect to message author's channel
+    
+    if url is None or url == '':
+        if len(channel_var[ctx.guild.id]['queue']) == 0:
+            return
+    else:
+        try:
+            link, player_link, title = music(url)
+            for i in range(len(link)):
+                channel_var[ctx.guild.id]['queue'].append([link[i], player_link[i], title[i]])
+        except ExtractorError:
+            await ctx.send('**Error:** ' + url)
+        except HTTPError:
+            await ctx.send('**Error:** ' + url)
+        except DownloadError:
+            await ctx.send('**Error:** ' + url)
+        except NotPlaylist:
+            await ctx.send('**Not a playlist:** ' + url)
+    
+    # activate music playing function
+    if channel_var[ctx.guild.id]['activated'] == False:
+        channel_var[ctx.guild.id]['activated'] = True
+        await play_music(ctx)
+
 @client.command(name='debug')
 async def debug(ctx):
     def check(m):
@@ -254,7 +322,19 @@ async def queue_(ctx):
         await ctx.send('**Queue is empty!**')
     else:
         async with ctx.typing():
-            await ctx.send('\n'.join([f'{idx}. {item[2]}\n{item[0]}' for idx, item in enumerate(channel_var[ctx.guild.id]['queue'], start=1)]))
+            msg = await ctx.send('\n'.join([f'{idx}. {item[2]}\n{item[0]}' for idx, item in enumerate(channel_var[ctx.guild.id]['queue'], start=1)]))
+            await msg.edit(suppress=True)
+
+@client.command(name='shuffle')
+async def shuffle(ctx):
+    await initialize(ctx.guild.id, ctx)
+    global channel_var
+
+    if len(channel_var[ctx.guild.id]['queue']) == 0:
+        await ctx.send('**Queue is empty!**')
+    else:
+        random.shuffle(channel_var[ctx.guild.id]['queue'])
+        await ctx.send('**Shuffled!**')
             
 @client.command(name='stop')
 async def stop(ctx):
@@ -364,10 +444,12 @@ async def help(ctx):
                                                                9. `#debug` Check parameters (for debugging)""", inline=False)
     
     embed.add_field(name=':new: __New Features (Experimental)__', value="""1. `#when` Return the start time of the bot
-                                                                        2. `#dm [userid] [message]` Send message to any user privately""" )
+                                                                        2. `#dm [userid] [message]` Send message to any user privately
+                                                                        3. `#playlist [url]` Play music from Youtube playlist
+                                                                        4. `#shuffle` Shuffle songs in queue""" )
     
     embed.add_field(name=':frame_with_picture: __GIF__', value="Automatically return GIF if the message matches the following keywords\n`" + '` `'.join(gif.keys()) +'`', inline=False)
-    embed.set_footer(text="Last updated on 25 December 2021")
+    embed.set_footer(text="Last updated on 18 March 2022")
     await ctx.send(embed=embed)
 
 @client.command(name='ping')
@@ -450,8 +532,14 @@ async def leavemealone(ctx):
     
     question = generate_question()
     await ctx.send('Question:  `'+question+'`\nType your answer:')
-    answer = int(sympy.sympify(question))
+
+    if MODE == 0:
+        answer = int(sympy.sympify(question))
+    elif MODE == 1:
+        answer = int(eval(question))
+
     print('Answer:', answer)
+
     msg = await client.wait_for("message", check=check)
     tag = "<@" + str(ctx.message.author.id) + ">"
     if int(msg.content) == answer:
